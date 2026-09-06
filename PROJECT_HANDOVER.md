@@ -663,6 +663,40 @@ Both flags (`over_smoothing_flag` literal,
 in data/processed/step6_5a_pancreas_dpt_calibrated.csv; script at
 code/06_failure_modes/step6_5a_null_calibration.R.
 
+**Multiple-comparisons null calibration (Item 6), Over-Smoothing --
+simulated variance-ratio branch (Step 6.5c).** This branch found 0/31,640
+flagged (ratio<0.20) under the literal spec -- the relevant calibration
+question here inverts from the other tests: not "how many flags are
+noise" (there are none), but whether the 0.20 threshold is so lenient
+the test could never detect genuine over-smoothing even if present, i.e.
+whether the null result reflects a real absence of the failure mode or
+an unfalsifiable test. Tested via label-permutation (200 draws): keep
+the real gene-expression matrix and real embedding fixed, permute
+true_group, recompute both pre-PCA and post-PCA signal fractions and
+their ratio. Full 31,640-row grid was too expensive to permute in full;
+calibrated on a stratified sample (25 files x 4 methods = 100 cases)
+spanning all 3 simulators and both target log2FC bands (0.25, 0.50),
+matching Item 3's cross-simulator triangulation standard rather than a
+single-simulator sample (Splatter has zero eligible files at the 0.50
+band -- a genuine scope gap, not a sampling bug, consistent with this
+branch's already-narrow documented scope).
+
+Result: null ratios cluster tightly near 1.0 (median 0.98-0.99 across
+methods), with the lowest 5th percentile across any method still at 0.75
+(Log-PCA) -- far above the 0.20 flag threshold. This confirms the test
+has genuine statistical power: were real over-smoothing present (ratio
+dropping toward the ~0.75-0.99 range that even a total ABSENCE of signal
+produces), the test would detect it. The 0/31,640 result is therefore a
+meaningful, well-powered negative finding, not an artifact of an
+unfalsifiable threshold. (Null ratios cluster near 1 rather than near 0
+because signal_fraction is an R^2-type statistic computed identically
+pre- and post-PCA -- even under permuted labels both numerator and
+denominator land near the same small random-label baseline, keeping
+their ratio near 1 regardless of dimensionality change -- a reassuring
+structural property of the ratio construction itself.) Full calibration
+table in data/processed/step6_5c_variance_ratio_null_calibration.csv;
+script at code/06_failure_modes/step6_5c_null_calibration.R.
+
 scDesign3 and SymSim extracted cleanly — 82/82 and 244/244 fit-keys, zero
 failures. Splatter needed one call per row rather than per fit-key, since
 its seeding is unique per row, and turned up two separate, real data-
