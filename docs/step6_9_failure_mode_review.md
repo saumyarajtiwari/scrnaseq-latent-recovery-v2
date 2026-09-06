@@ -175,6 +175,24 @@ any result was trusted.
 
 ## 6. Neighborhood Collapse — RETAINED, with an important severity caveat
 
+**Addendum (found during Item 6's null-calibration work, not previously
+documented):** the current step6_6_neighborhood_collapse.csv contains
+196,824 rows, not the 196,812 cited in the summary table above and
+originally in this section -- a 12-row discrepancy likely reflecting a
+partial --retry_errors recovery sometime after this document was
+written (see this script's own v3 header re: the 963-error torn-cache
+bug and its fix). More importantly: all 6 Tabula Sapiens Lung rows
+(n_cells=61,292) are entirely absent from the current file -- not
+present even as status="error" rows. This was not disclosed anywhere in
+this document's original Neighborhood Collapse writeup and should be
+treated as a known, currently-real scope gap: Tabula Sapiens Lung is
+excluded from this failure mode's results, most plausibly due to memory
+constraints building this test's reference-space cache at that dataset's
+scale (56,139 genes, 61,292 cells -- the same dataset that required
+GLM-PCA's chunked-projection workaround in Item 5). Not resolved here;
+flagged for whoever next revisits Step 6.6, consistent with this
+project's disclose-rather-than-silently-patch convention.
+
 **What was tested:** mean fraction of true k=15 nearest neighbors (in a
 common log-normalized, HVG500+PCA15 reference space) appearing in each
 method's own k=15 nearest neighbors; flagged if mean overlap < 0.5.
