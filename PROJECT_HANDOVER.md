@@ -640,6 +640,29 @@ p_ambient and the per-row null threshold) in
 data/processed/step6_7_subspace_rotation_slippage_calibrated.csv; script
 at code/06_failure_modes/step6_7_null_calibration.R.
 
+**Multiple-comparisons null calibration (Item 6), Over-Smoothing --
+real-data DPT branch (Step 6.5a).** Only 18 rows total (3 pancreas
+datasets x 6 methods), each calibrated exactly per-row (matching that
+row's actual progenitor/mature cell-count split, not just total n --
+correlation with a binary reference's null variance depends on class
+balance) rather than bucketed, at 2,000 draws given the trivial
+computational cost at this scale.
+
+Result: the most decisive of all six calibrations. Null 95th percentiles
+are tiny (0.019-0.039) against real Spearman correlations of 0.18-0.70 --
+even the single weakest real correlation (0.177, GLM-PCA/Baron) sits
+~9x above its own null threshold. Calibrated flag: 0/18. Every one of
+the 10 literally-flagged (rho<0.6) rows reflects overwhelmingly real,
+non-random biological signal between diffusion pseudotime and the
+progenitor/mature reference -- none are remotely close to chance. This
+confirms and sharpens docs/step6_9's existing framing: the 0.6 threshold
+is a demanding effect-size bar requiring strong trajectory preservation,
+not a test of whether any real structure survived preprocessing at all.
+Both flags (`over_smoothing_flag` literal,
+`over_smoothing_flag_calibrated`) retained side by side. Per-row output
+in data/processed/step6_5a_pancreas_dpt_calibrated.csv; script at
+code/06_failure_modes/step6_5a_null_calibration.R.
+
 scDesign3 and SymSim extracted cleanly — 82/82 and 244/244 fit-keys, zero
 failures. Splatter needed one call per row rather than per fit-key, since
 its seeding is unique per row, and turned up two separate, real data-
