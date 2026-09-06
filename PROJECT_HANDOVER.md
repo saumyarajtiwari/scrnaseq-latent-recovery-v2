@@ -578,6 +578,35 @@ data/processed/step6_4_eta_batch_null_calibration.csv; per-row output in
 data/processed/step6_4_variance_hijacking_calibrated.csv; script at
 code/06_failure_modes/step6_4_null_calibration.R.
 
+**Multiple-comparisons null calibration (Item 6), Neighborhood Collapse
+(Step 6.6).** Mean k-NN overlap < 0.5 flags collapse; unlike prior
+calibrations, this statistic's null distribution under "no relationship
+between reference and method embeddings" is purely combinatorial (mean
+intersection size of two independent random k-subsets from n-1 items),
+depending only on (n_cells, k=15) -- no matrix/embedding simulation
+needed. 11 buckets (a 12th, Tabula Sapiens Lung at n=61,292, is entirely
+absent from this test's own output -- see the addendum added to
+docs/step6_9_failure_mode_review.md, an undisclosed pre-existing gap
+found during this work, not something we introduced).
+
+Result, same direction as Step 6.2: null 95th percentiles are tiny
+(0.0013 at n=65,690 to 0.093 at n=200) against a real median overlap of
+0.208 -- comfortably above chance almost everywhere. Calibrated flag
+(indistinguishable from/below chance: 8,741, 4.4%) is a small fraction of
+the literal overlap<0.5 flag (183,900, 93.5%). This gives docs/step6_9's
+existing qualitative caveat ("should not be read as neighborhood
+structure is destroyed almost everywhere... partly reflects the
+strictness of a binary criterion") a precise number: roughly 95.6% of
+literally-flagged rows show real, statistically-detectable neighborhood
+structure, just below an aggressive 0.5 bar; only about 4.4% are
+genuinely indistinguishable from random chance. Both flags
+(`overlap_flag` literal, `overlap_flag_calibrated`) retained side by
+side. Full calibration table in
+data/processed/step6_6_overlap_null_calibration.csv; per-row output in
+data/processed/step6_6_neighborhood_collapse_calibrated.csv (196,824
+rows, excludes the missing Tabula Sapiens Lung rows noted above); script
+at code/06_failure_modes/step6_6_null_calibration.R.
+
 scDesign3 and SymSim extracted cleanly — 82/82 and 244/244 fit-keys, zero
 failures. Splatter needed one call per row rather than per fit-key, since
 its seeding is unique per row, and turned up two separate, real data-
