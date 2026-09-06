@@ -607,6 +607,39 @@ data/processed/step6_6_neighborhood_collapse_calibrated.csv (196,824
 rows, excludes the missing Tabula Sapiens Lung rows noted above); script
 at code/06_failure_modes/step6_6_null_calibration.R.
 
+**Multiple-comparisons null calibration (Item 6), Subspace Rotation
+Slippage (Step 6.7).** Unlike the prior four tests, this one has an exact
+closed-form null rather than requiring simulation: for a uniformly random
+unit vector in R^p (ambient gene space), cos^2(angle to a fixed rank-r
+true subspace) follows a Beta(r/2, (p-r)/2) distribution exactly --
+standard directional-statistics result. r comes directly from each row's
+own rank_true (already computed by Step 6.7; notably 1 for all scDesign3
+rows, reflecting the true group-means matrix's actual numerical rank, not
+an assumed n_groups-1=4). p (ambient gene dimension) is deterministic by
+source for the 4 linear methods (2,000/10,000, no file reads needed) but
+varies substantially per file for SCTransform v2/GLM-PCA -- found, while
+building this calibration, to range from 121 to 3,000 genes (median
+2,000), well below the nominal 3,000-gene cap discussed in Item 2,
+apparently due to additional zero-count-gene removal at high-sparsity
+parameter combinations. Read directly from all 65,598 affected files
+(parallelized, ~2.6 min) rather than approximated.
+
+Result: null 5th-percentile angle thresholds are enormous (73.9-88.2
+degrees, median 86.3) -- expected, since a random vector's angle to a
+low-rank subspace concentrates near 90 degrees in high-dimensional gene
+space. Calibrated flag (angle statistically indistinguishable from
+chance: 14,285, 7.3%) is a small fraction of the literal angle>30 flag
+(172,934, 87.9%). This means roughly 92% of literally-flagged
+"slippage" rows show real, statistically-significant alignment with the
+true subspace -- the 30-degree threshold is a strict effect-size cutoff
+in an extremely high-dimensional space, not a significance boundary.
+Same qualitative pattern as Steps 6.2 and 6.6, now with an exact rather
+than simulated null. Both flags (`flag_pc1` literal,
+`flag_pc1_calibrated`) retained side by side. Per-row output (including
+p_ambient and the per-row null threshold) in
+data/processed/step6_7_subspace_rotation_slippage_calibrated.csv; script
+at code/06_failure_modes/step6_7_null_calibration.R.
+
 scDesign3 and SymSim extracted cleanly — 82/82 and 244/244 fit-keys, zero
 failures. Splatter needed one call per row rather than per fit-key, since
 its seeding is unique per row, and turned up two separate, real data-
